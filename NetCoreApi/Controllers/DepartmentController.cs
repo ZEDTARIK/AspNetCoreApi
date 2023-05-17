@@ -115,5 +115,25 @@ namespace NetCoreApi.Controllers
 
             return new JsonResult(department);
         }
+
+        [HttpDelete("{id}")]
+        public JsonResult Delete(int id)
+        {
+            string query = @"DELETE FROM dbo.Department WHERE DepartmentId = @DepartmentId";
+            string sqlDataSource = _configuration.GetConnectionString("MyConnectionString");
+            SqlDataReader sqlDataReader;
+            using(SqlConnection sqlConnection = new SqlConnection(sqlDataSource))
+            {
+                sqlConnection.Open();
+                using(SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue("@DepartmentId", id);
+                    sqlDataReader = sqlCommand.ExecuteReader();
+                    sqlDataReader.Close();
+                    sqlConnection.Close();
+                }
+            }
+            return new JsonResult("Deleted Successfully");
+        }
     }
 }
