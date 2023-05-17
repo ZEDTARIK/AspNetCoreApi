@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetCoreApi.Models;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -63,6 +64,30 @@ namespace NetCoreApi.Controllers
                 }
             }
             return new JsonResult(dataTable);
+        }
+
+        [HttpPost]
+        public JsonResult Post(Department department)
+        {
+            string query = @"INSERT INTO dbo.Department VALUES(@DepartmentName)";
+            string dataSource = _configuration.GetConnectionString("MyConnectionString");
+            DataTable dataTable = new DataTable();
+
+            SqlDataReader sqlDataReader;
+
+            using(SqlConnection sqlConnection = new SqlConnection(dataSource))
+            {
+                sqlConnection.Open();
+                using(SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue("DepartmentName", department.DepartmentName);
+                    sqlDataReader = sqlCommand.ExecuteReader();
+                    dataTable.Load(sqlDataReader);
+                    sqlDataReader.Close();
+                    sqlConnection.Close();
+                }
+            }
+            return new JsonResult("Insert SuccessFully");
         }
     }
 }
