@@ -89,5 +89,31 @@ namespace NetCoreApi.Controllers
             }
             return new JsonResult("Insert SuccessFully");
         }
+
+        [HttpPut]
+        public JsonResult Put(Department department)
+        {
+            string query = @"UPDATE dbo.Department
+                                SET DepartmentName = @DepartmentName
+                            WHERE DepartmentId = @DepartmentId";
+
+            string sqlDataSource = _configuration.GetConnectionString("MyConnectionString");
+
+            SqlDataReader sqlDataReader;
+            using(SqlConnection sqlConnection = new SqlConnection(sqlDataSource))
+            {
+                sqlConnection.Open();
+                using(SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                { 
+                    sqlCommand.Parameters.AddWithValue("@DepartmentId", department.DepartmentId);
+                    sqlCommand.Parameters.AddWithValue("@DepartmentName", department.DepartmentName);
+                    sqlDataReader = sqlCommand.ExecuteReader();
+                    sqlDataReader.Close();
+                    sqlConnection.Close();
+                }
+            }
+
+            return new JsonResult(department);
+        }
     }
 }
