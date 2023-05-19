@@ -41,5 +41,35 @@ namespace NetCoreApi.Controllers
 
             return new JsonResult(dataTable);
         }
+
+        [HttpGet("{id}")]
+        public JsonResult Get(int id)
+        {
+            string query = @"SELECT EmployeeName, Department, 
+                             CONVERT(varchar(10),DateOfJoining, 120) AS 'DateOfJoining', PhotoFileName 
+                             FROM dbo.Employee
+                            WHERE EmployeeId=@EmployeeId";
+
+            string dataSource = _configuration.GetConnectionString("MyConnectionString");
+            SqlDataReader sqlDataReader;
+            DataTable dataTable = new DataTable();
+
+            using (SqlConnection sqlConnection = new SqlConnection(dataSource))
+            {
+                sqlConnection.Open();
+                using (SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue("@EmployeeId", id);
+                    sqlDataReader = sqlCommand.ExecuteReader();
+                    dataTable.Load(sqlDataReader);
+                    sqlDataReader.Close();
+                }
+                sqlConnection.Close();
+            }
+
+            return new JsonResult(dataTable);
+
+
+        }
     }
 }
