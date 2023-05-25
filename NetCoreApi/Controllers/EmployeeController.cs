@@ -96,5 +96,31 @@ namespace NetCoreApi.Controllers
             }
             return new JsonResult(employee);
         }
+
+        [HttpPut]
+        public JsonResult Put(Employee employee)
+        {
+            string @query = @"UPDATE dbo.Employee 
+                                SET EmployeeName = @EmployeeName
+                                WHERE EmployeeId = @EmployeeId";
+            string dataSource = _configuration.GetConnectionString("MyConnectionString");
+
+            SqlDataReader sqlDataReader;
+            DataTable dataTable = new DataTable();
+            using(SqlConnection sqlConnection = new SqlConnection(dataSource))
+            {
+                sqlConnection.Open();
+                using(SqlCommand sqlCommand = new SqlCommand(query, sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
+                    sqlCommand.Parameters.AddWithValue("@EmployeeName", employee.EmployeeName);
+                    sqlDataReader = sqlCommand.ExecuteReader();
+                    dataTable.Load(sqlDataReader);
+                    sqlDataReader.Close();
+                }
+            }
+            return new JsonResult(dataTable);
+        }
+
     }
 }
